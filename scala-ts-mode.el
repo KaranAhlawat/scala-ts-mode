@@ -1,6 +1,6 @@
 ;;; scala-ts-mode.el --- Scala Tree-Sitter Mode -*- lexical-binding: t; -*-
 ;;; Commentary:
-;;; Just experimenting how to implement a major mode using treesitter in Emacs
+;;; Treesitter based Scala major mode for Emacs (based on the new treesit lib)
 ;;; Code:
 (require 'treesit)
 (eval-when-compile (require 'rx))
@@ -15,7 +15,6 @@
   '("if" "then" "else" "case")
   "Conditionals for `scala-ts-mode'.")
 
-;;;###autoload
 (defvar scala-ts-mode--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'scala
