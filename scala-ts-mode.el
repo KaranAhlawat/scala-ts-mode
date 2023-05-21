@@ -101,7 +101,7 @@
      (inline_modifier) @font-lock-keywordface
      (null_literal) @font-lock-constant-face
      (wildcard) @font-lock-builtin-face
-     (annotation) @font-lock-keyword-face
+     (annotation) @font-lock-preprocessor-face
      "new" @font-lock-keyword-face
      [,@scala-ts--keywords-control] @font-lock-keyword-face
      ;; `case' is handled specially here, to limit it into a context
