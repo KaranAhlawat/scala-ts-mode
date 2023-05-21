@@ -24,3 +24,6 @@ Then, you can simply call ~scala-ts-mode~ in a Scala buffer.
 
 * Contributions
 Contributions are welcome! These can be in the form of PRs, Issues, or any other way you can think of. This is my first package, so please don't hold back :)
+
+* License
+GPLv3

@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2023  Karan Ahlawat
 
-;; Author: Karan Ahlawat(require 'treesit) <ahlawatkaran12@gmail.com>
+;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
 ;; Keywords: scala, languages, tree-sitter
 
 ;; This program is free software; you can redistribute it and/or modify
