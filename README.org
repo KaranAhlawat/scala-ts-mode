@@ -1,0 +1,26 @@
+#+TITLE:  scala-ts-mode
+
+#+PROPERTY: LOGGING nil
+
+~scala-ts-mode~ is a [[https://tree-sitter.github.io/tree-sitter/][tree-sitter]] based GNU Emacs major mode built on top of the Emacs 29+ ~treesit~ library. It provides the following features in a Scala buffer-
+1. efficient font-locking using tree-sitter
+2. ~imenu~ integration (TODO)
+3. indentation support using tree-sitter (TODO)
+
+The major-mode is very much under work right now, and as such may change and/or break frequently it a stable point of release is reached.
+
+* Requirements
+To use the package, the following dependencies are required.
+1. GNU Emacs 29+, built with support for tree-sitter.
+2. tree-sitter grammar for Scala (you can use the ~treesit-install-language-grammar~ function for installing it.)
+
+* Installation
+To install the package, you can use the Emacs package manager of your choice to pull the package from source. For instance, if you use ~straight.el~, you can do the following -
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package '(scala-ts-mode :type git :host github :repo "KaranAhlawat/scala-ts-mode"))
+#+END_SRC
+
+Then, you can simply call ~scala-ts-mode~ in a Scala buffer.
+
+* Contributions
+Contributions are welcome! These can be in the form of PRs, Issues, or any other way you can think of. This is my first package, so please don't hold back :)
