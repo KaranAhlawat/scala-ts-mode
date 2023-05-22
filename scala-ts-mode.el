@@ -31,6 +31,9 @@
 (declare-function treesit-parser-create "treesit.c")
 
 (defvar scala-ts--keywords
+(declare-function treesit-node-type "treesit.c")
+(declare-function treesit-node-text "treesit.c")
+(declare-function treesit-node-child-by-field-name "treesit.c")
   '("case"
     "class"
     "enum"
@@ -251,6 +254,20 @@
      (interpolation "$" @font-lock-string-face)))
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
+(defun scala-ts-mode--defun-name (node)
+  "Return the defun name of NODE.
+Return nil if there is no nameor if NODE is not a defun node."
+  (pcase (treesit-node-type node)
+    ((or "class_definition"
+         "trait_definition"
+         "enum_definition"
+         "object_definition"
+         "full_enum_case"
+         "simple_enum_case"
+         "function_definition")
+     (treesit-node-text
+      (treesit-node-child-by-field-name node "name")))))
+
 ;;;###autoload
 (define-derived-mode scala-ts-mode prog-mode " Scala (TS)"
   "Major mode for Scala files using tree-sitter."
@@ -272,6 +289,7 @@
                                                   literal
                                                   extra)))
     (treesit-major-mode-setup)))
+    (setq-local treesit-defun-name-function #'scala-ts-mode--defun-name)
 
 (provide 'scala-ts-mode)
 ;;; scala-ts-mode.el ends here
