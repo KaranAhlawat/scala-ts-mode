@@ -280,7 +280,8 @@ Return nil if there is no nameor if NODE is not a defun node."
          "simple_enum_case"
          "function_definition")
      (treesit-node-text
-      (treesit-node-child-by-field-name node "name")))))
+      (treesit-node-child-by-field-name node "name"))
+     t)))
 
 ;;;###autoload
 (define-derived-mode scala-ts-mode prog-mode " Scala (TS)"
