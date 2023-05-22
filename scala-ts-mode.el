@@ -29,8 +29,6 @@
 (eval-when-compile (require 'rx))
 
 (declare-function treesit-parser-create "treesit.c")
-
-(defvar scala-ts--keywords
 (declare-function treesit-node-type "treesit.c")
 (declare-function treesit-node-text "treesit.c")
 (declare-function treesit-node-child-by-field-name "treesit.c")
@@ -49,6 +47,7 @@
     table)
   "Syntax table for `scala-ts-mode'.")
 
+(defvar scala-ts-mode--keywords
   '("case"
     "class"
     "enum"
@@ -292,14 +291,15 @@ Return nil if there is no nameor if NODE is not a defun node."
   (when (treesit-ready-p 'scala)
     (treesit-parser-create 'scala)
 
-    (setq-local treesit-font-lock-settings scala-ts--treesit-font-lock-settings)
     ;; Comments
     (setq-local comment-start "// ")
     (setq-local comment-end "")
     (setq-local comment-start-skip (rx "//" (* (syntax whitespace))))
 
+    (setq-local treesit-font-lock-settings scala-ts-mode--treesit-font-lock-settings)
     ;; TODO Split this into levels to respect user choices
     (setq-local treesit-font-lock-feature-list '((comment
+                                                  doc-comment
                                                   definition
                                                   keyword
                                                   type
