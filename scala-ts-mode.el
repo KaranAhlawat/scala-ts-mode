@@ -32,18 +32,28 @@
 (declare-function treesit-node-type "treesit.c")
 (declare-function treesit-node-text "treesit.c")
 (declare-function treesit-node-child-by-field-name "treesit.c")
+
+(defcustom scala-ts-mode-indent-offset 4
+  "Number of spaces for each indentation in `scala-ts-mode'."
+  :version "29.1"
+  :type 'integer
+  :safe 'integerp
+  :group 'scala-ts)
+
 (defvar scala-ts-mode--syntax-table
   (let ((table (make-syntax-table)))
+    ;; "." denotes punctuation
     (modify-syntax-entry ?+ "." table)
     (modify-syntax-entry ?- "." table)
     (modify-syntax-entry ?/ "." table)
-    (modify-syntax-entry ?\\ "\\" table)
-    (modify-syntax-entry ?\" "\"" table)
-    (modify-syntax-entry ?'  "/" table)
-    (modify-syntax-entry ?/ "< 12" table)
-    (modify-syntax-entry ?\n ">" table)
-    (modify-syntax-entry ?/ ". 14b")
-    (modify-syntax-entry ?* ". 23b")
+    ;; Just reinforcing some defaults
+    (modify-syntax-entry ?\\ "\\" table) ; Escape seq start
+    (modify-syntax-entry ?\" "\"" table) ; String start
+    (modify-syntax-entry ?'  "/" table)  ; Char start
+    (modify-syntax-entry ?/ "< 12" table) ; Comment seq a, first two char are /
+    (modify-syntax-entry ?\n ">" table) ; Comment seq a, ends with a newline
+    (modify-syntax-entry ?/ ". 14b") ; Comment seq b, starts and ends with /
+    (modify-syntax-entry ?* ". 23b") ; Comment seq b, second start and first end char is *
     table)
   "Syntax table for `scala-ts-mode'.")
 
@@ -70,7 +80,8 @@
     "with"
     "def"
     "import"
-    "export")
+    "export"
+    "new")
   "Keywords for `scala-ts-mode'.")
 
 (defvar scala-ts-mode--keywords-type-qualifiers
@@ -109,18 +120,17 @@
   (treesit-font-lock-rules
    :language 'scala
    :feature 'keyword
-   `([,@scala-ts-mode--keywords] @font-lock-keyword-face
+   `([,@scala-ts-mode--keywords ] @font-lock-keyword-face
      [,@scala-ts-mode--keywords-type-qualifiers] @font-lock-keyword-face
      (opaque_modifier) @font-lock-keyword-face
      (infix_modifier) @font-lock-keyword-face
      (transparent_modifier) @font-lock-keyword-face
      (open_modifier) @font-lock-keyword-face
-     (inline_modifier) @font-lock-keywordface
+     (inline_modifier) @font-lock-keyword-face
+     [,@scala-ts-mode--keywords-control] @font-lock-keyword-face
      (null_literal) @font-lock-constant-face
      (wildcard) @font-lock-builtin-face
      (annotation) @font-lock-preprocessor-face
-     "new" @font-lock-keyword-face
-     [,@scala-ts-mode--keywords-control] @font-lock-keyword-face
      ;; `case' is handled specially here, to limit it into a context
      (case_block
       (case_clause ("case") @font-lock-keyword-face)))
@@ -224,17 +234,15 @@
 
    :language 'scala
    :feature 'import
-   '((import_declaration
-      path: (identifier) @font-lock-type-face)
-     ((stable_identifier (identifier) @default))
-     ((import_declaration
-       name: (identifier) @font-lock-type-face)
+   '(((import_declaration
+       path: (identifier) @font-lock-type-face)
       (:match "^[A-Z]" @font-lock-type-face))
+     (stable_identifier (identifier) @default)
      ((stable_identifier (identifier) @font-lock-type-face)
       (:match "^[A-Z]" @font-lock-type-face))
      (export_declaration
       path: (identifier) @default)
-     ((stable_identifier (identifier) @default))
+     (stable_identifier (identifier) @default)
      ((export_declaration
        path: (identifier) @font-lock-type-face)
       (:match "^[A-Z]" @font-lock-type-face))
@@ -249,8 +257,7 @@
      (infix_expression operator: (operator_identifier) @font-lock-operator-face)
      (infix_type operator: (operator_identifier) @font-lock-operator-face)
      (infix_type operator: (operator_identifier) @font-lock-operator-face)
-     (operator_identifier) @font-lock-operator-face
-     ["=>" "<-" "@"] @font-lock-operator-face)
+     ["=>" "<-" "@" (operator_identifier)] @font-lock-operator-face)
 
    :language 'scala
    :feature 'literal
@@ -280,8 +287,8 @@ Return nil if there is no nameor if NODE is not a defun node."
          "simple_enum_case"
          "function_definition")
      (treesit-node-text
-      (treesit-node-child-by-field-name node "name"))
-     t)))
+      (treesit-node-child-by-field-name node "name")
+      t))))
 
 ;;;###autoload
 (define-derived-mode scala-ts-mode prog-mode " Scala (TS)"
@@ -320,9 +327,13 @@ Return nil if there is no nameor if NODE is not a defun node."
                   ("Object" "\\`object_definition\\'" nil nil)
                   ("Function" "\\`function_definition\\'" nil nil)))
     
-    (treesit-major-mode-setup)
+    (treesit-major-mode-setup)))
 
-    (add-to-list 'auto-mode-alist '("\\.sc\\(ala\\)?\\'" . scala-ts-mode))))
+;;;###autoload
+(progn
+  (add-to-list 'auto-mode-alist '("\\.scala\\'" . scala-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.sc\\'" . scala-ts-mode))
+  (add-to-list 'auto-mode-alist '("\\.sbt\\'" . scala-ts-mode)))
 
 (provide 'scala-ts-mode)
 ;;; scala-ts-mode.el ends here
