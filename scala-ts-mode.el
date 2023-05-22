@@ -309,8 +309,19 @@ Return nil if there is no nameor if NODE is not a defun node."
                                                   operator
                                                   literal
                                                   extra)))
-    (treesit-major-mode-setup)))
+
     (setq-local treesit-defun-name-function #'scala-ts-mode--defun-name)
+    ;; Imenu
+    (setq-local treesit-simple-imenu-settings
+                `(("Class" "\\`class_definition\\'" nil nil)
+                  ("Trait" "\\`trait_definition\\'" nil nil)
+                  ("Enum" "\\`enum_definition\\'"' nil nil)
+                  ("Object" "\\`object_definition\\'" nil nil)
+                  ("Function" "\\`function_definition\\'" nil nil)))
+    
+    (treesit-major-mode-setup)
+
+    (add-to-list 'auto-mode-alist '("\\.sc\\(ala\\)?\\'" . scala-ts-mode))))
 
 (provide 'scala-ts-mode)
 ;;; scala-ts-mode.el ends here
