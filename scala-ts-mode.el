@@ -34,6 +34,21 @@
 (declare-function treesit-node-type "treesit.c")
 (declare-function treesit-node-text "treesit.c")
 (declare-function treesit-node-child-by-field-name "treesit.c")
+(defvar scala-ts-mode--syntax-table
+  (let ((table (make-syntax-table)))
+    (modify-syntax-entry ?+ "." table)
+    (modify-syntax-entry ?- "." table)
+    (modify-syntax-entry ?/ "." table)
+    (modify-syntax-entry ?\\ "\\" table)
+    (modify-syntax-entry ?\" "\"" table)
+    (modify-syntax-entry ?'  "/" table)
+    (modify-syntax-entry ?/ "< 12" table)
+    (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry ?/ ". 14b")
+    (modify-syntax-entry ?* ". 23b")
+    table)
+  "Syntax table for `scala-ts-mode'.")
+
   '("case"
     "class"
     "enum"
@@ -272,11 +287,17 @@ Return nil if there is no nameor if NODE is not a defun node."
 (define-derived-mode scala-ts-mode prog-mode " Scala (TS)"
   "Major mode for Scala files using tree-sitter."
   :group 'scala-ts
+  :syntax-table scala-ts-mode--syntax-table
 
   (when (treesit-ready-p 'scala)
     (treesit-parser-create 'scala)
 
     (setq-local treesit-font-lock-settings scala-ts--treesit-font-lock-settings)
+    ;; Comments
+    (setq-local comment-start "// ")
+    (setq-local comment-end "")
+    (setq-local comment-start-skip (rx "//" (* (syntax whitespace))))
+
     ;; TODO Split this into levels to respect user choices
     (setq-local treesit-font-lock-feature-list '((comment
                                                   definition
