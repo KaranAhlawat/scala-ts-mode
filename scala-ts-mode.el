@@ -56,7 +56,7 @@
     "export")
   "Keywords for `scala-ts-mode'.")
 
-(defvar scala-ts--keywords-type-qualifiers
+(defvar scala-ts-mode--keywords-type-qualifiers
   '("abstract"
     "final"
     "lazy"
@@ -65,7 +65,7 @@
     "protected")
   "Type qualifiers for `scala-ts-mode'.")
 
-(defvar scala-ts--keywords-control
+(defvar scala-ts-mode--keywords-control
   '("if"
     "then"
     "else"
@@ -80,20 +80,20 @@
     "return")
   "Control flow for `scala-ts-mode'.")
 
-(defvar scala-ts--brackets
+(defvar scala-ts-mode--brackets
   '("(" ")" "[" "]" "{" "}")
   "Brackets for `scala-ts-mode'.")
 
-(defvar scala-ts--delimiters
+(defvar scala-ts-mode--delimiters
   '("." ",")
   "Delimiters for `scala-ts-mode'.")
 
-(defvar scala-ts--treesit-font-lock-settings
+(defvar scala-ts-mode--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'scala
    :feature 'keyword
-   `([,@scala-ts--keywords] @font-lock-keyword-face
-     [,@scala-ts--keywords-type-qualifiers] @font-lock-keyword-face
+   `([,@scala-ts-mode--keywords] @font-lock-keyword-face
+     [,@scala-ts-mode--keywords-type-qualifiers] @font-lock-keyword-face
      (opaque_modifier) @font-lock-keyword-face
      (infix_modifier) @font-lock-keyword-face
      (transparent_modifier) @font-lock-keyword-face
@@ -103,21 +103,30 @@
      (wildcard) @font-lock-builtin-face
      (annotation) @font-lock-preprocessor-face
      "new" @font-lock-keyword-face
-     [,@scala-ts--keywords-control] @font-lock-keyword-face
+     [,@scala-ts-mode--keywords-control] @font-lock-keyword-face
      ;; `case' is handled specially here, to limit it into a context
      (case_block
       (case_clause ("case") @font-lock-keyword-face)))
 
    :language 'scala
    :feature 'extra
-   `([,@scala-ts--brackets] @font-lock-bracket-face
-     [,@scala-ts--delimiters] @font-lock-delimiter-face)
+   `([,@scala-ts-mode--brackets] @font-lock-bracket-face
+     [,@scala-ts-mode--delimiters] @font-lock-delimiter-face)
    
    :language 'scala
    :feature 'comment
-   '((comment) @font-lock-comment-face
-     ((comment) @font-lock-type-face
-      (:match "^/[*][*][^*].*[*]/$" @font-lock-type-face)))
+   '((comment) @font-lock-comment-face)
+
+   :language 'scala
+   :feature 'doc-comment
+   :override t
+   `((((comment) @font-lock-doc-face)
+      (:match ,(rx-to-string '( : bol "/*"
+                                (* (| (not "*")
+                                      (: "*" (not "/"))))
+                                (+ "*") "/")
+                             t)
+              @font-lock-doc-face)))
 
    :language 'scala
    :feature 'definition
