@@ -32,8 +32,16 @@
 (declare-function treesit-node-type "treesit.c")
 (declare-function treesit-node-text "treesit.c")
 (declare-function treesit-node-child-by-field-name "treesit.c")
+(declare-function treesit-parent-while "treesit.c")
+(declare-function treesit-parent-until "treesit.c")
+(declare-function treesit-node-prev-sibling "treesit.c")
+(declare-function treesit-node-next-sibling "treesit.c")
+(declare-function treesit-node-type "treesit.c")
+(declare-function treesit-node-start "treesit.c")
+(declare-function treesit-node-end "treesit.c")
+(declare-function treesit-node-child "treesit.c")
 
-(defcustom scala-ts-mode-indent-offset 4
+(defcustom scala-ts-mode-indent-offset 2
   "Number of spaces for each indentation in `scala-ts-mode'."
   :version "29.1"
   :type 'integer
@@ -275,6 +283,73 @@
      (interpolation "$" @font-lock-string-face)))
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
+(defvar scala-ts-mode--indent-rules
+  (let ((offset scala-ts-mode-indent-offset))
+    `((scala
+       ((node-is "comment") parent 0)
+       ((node-is "}") parent-bol 0)
+       ((node-is "end") parent 0)
+       ((parent-is "if_expression")
+        (lambda (node parent bol)
+          ;; else if node
+          (cond
+           ((and (equal (treesit-node-type node)
+                        "else")
+                 (equal (treesit-node-type (treesit-node-next-sibling node))
+                        "if_expression"))
+            (treesit-node-start parent))
+           ;; else
+           ((equal (treesit-node-type node)
+                   "else")
+            (treesit-node-start (treesit-parent-while
+                                 parent
+                                 (lambda (cur-node)
+                                   (equal (treesit-node-type cur-node)
+                                          "if_expression")))))
+           ;; then
+           ((equal (treesit-node-type node)
+                   "then")
+            (treesit-node-start (treesit-parent-while
+                                 parent
+                                 (lambda (cur-node)
+                                   (equal (treesit-node-type cur-node)
+                                          "if_expression")))))
+           ;; indented and non
+           ((equal (treesit-node-type node)
+                   "indented_block")
+            (+ ,offset (treesit-node-start (treesit-parent-while
+                                            parent
+                                            (lambda (cur-node)
+                                              (equal (treesit-node-type cur-node)
+                                                     "if_expression"))))))
+           (t
+            (+ ,offset (treesit-node-start (treesit-parent-while
+                                            parent
+                                            (lambda (cur-node)
+                                              (equal (treesit-node-type cur-node)
+                                                     "if_expression"))))))))
+        0)
+       ((parent-is ,(rx-to-string
+                     '(| "trait_definition"
+                         "function_definition"
+                         "object_definition"
+                         "class_definition"
+                         "enum_definition"
+                         "val_definition"
+                         "var_definition"
+                         "enum_body"
+                         "template_body")
+                     t))
+        parent-bol ,offset)
+       ((node-is "indented_block") parent-bol ,offset)
+       ((node-is "block") parent ,offset)
+       ((parent-is "indented_block") parent 0)
+       ((parent-is "block") parent-bol ,offset)
+       ;; When there is an ERROR, just indent to prev-line.
+       ((parent-is "ERROR") prev-line 2)
+       (no-node parent 0))))
+  "Tree-sitter indent rules for `scala-ts-mode'.")
+
 (defun scala-ts-mode--defun-name (node)
   "Return the defun name of NODE.
 Return nil if there is no nameor if NODE is not a defun node."
@@ -306,20 +381,16 @@ Return nil if there is no nameor if NODE is not a defun node."
 
     (setq-local treesit-font-lock-settings scala-ts-mode--treesit-font-lock-settings)
     ;; TODO Split this into levels to respect user choices
-    (setq-local treesit-font-lock-feature-list '((comment
-                                                  doc-comment
-                                                  definition
-                                                  keyword
-                                                  type
-                                                  variable
-                                                  import
-                                                  function
-                                                  operator
-                                                  literal
-                                                  extra)))
+    (setq-local treesit-font-lock-feature-list '((comment doc-comment definition)
+                                                 (keyword  type)
+                                                 (import extra)
+                                                 (variable function operator literal)))
+
+
+    (setq-local treesit-simple-indent-rules scala-ts-mode--indent-rules)
 
     (setq-local treesit-defun-name-function #'scala-ts-mode--defun-name)
-    ;; Imenu
+    ;; TODO (could possibly be more complex?)
     (setq-local treesit-simple-imenu-settings
                 `(("Class" "\\`class_definition\\'" nil nil)
                   ("Trait" "\\`trait_definition\\'" nil nil)
