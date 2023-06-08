@@ -3,7 +3,10 @@
 ;; Copyright (C) 2023  Karan Ahlawat
 
 ;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
+;; URL: https://github.com/KaranAhlawat/scala-ts-mode
 ;; Keywords: scala, languages, tree-sitter
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "29.0.91") (emacs "24.3"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,7 +23,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -147,7 +150,7 @@
    :feature 'extra
    `([,@scala-ts-mode--brackets] @font-lock-bracket-face
      [,@scala-ts-mode--delimiters] @font-lock-delimiter-face)
-   
+
    :language 'scala
    :feature 'comment
    '((comment) @font-lock-comment-face)
@@ -331,14 +334,14 @@
         0)
        ((parent-is ,(rx-to-string
                      '(| "trait_definition"
-                         "function_definition"
-                         "object_definition"
-                         "class_definition"
-                         "enum_definition"
-                         "val_definition"
-                         "var_definition"
-                         "enum_body"
-                         "template_body")
+                       "function_definition"
+                       "object_definition"
+                       "class_definition"
+                       "enum_definition"
+                       "val_definition"
+                       "var_definition"
+                       "enum_body"
+                       "template_body")
                      t))
         parent-bol ,offset)
        ((node-is "indented_block") parent-bol ,offset)
@@ -397,7 +400,7 @@ Return nil if there is no nameor if NODE is not a defun node."
                   ("Enum" "\\`enum_definition\\'"' nil nil)
                   ("Object" "\\`object_definition\\'" nil nil)
                   ("Function" "\\`function_definition\\'" nil nil)))
-    
+
     (treesit-major-mode-setup)))
 
 ;;;###autoload
