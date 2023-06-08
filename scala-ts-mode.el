@@ -5,7 +5,7 @@
 ;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
 ;; Version: 0.0.1
 ;; Filename: scala-ts-mode.el
-;; Package-Requires: ((emacs "29.2"))
+;; Package-Requires: ((emacs "29.0.91"))
 ;; Keywords: scala, languages, tree-sitter
 ;; URL: https://github.com/KaranAhlawat/scala-ts-mode
 
@@ -25,7 +25,8 @@
 ;;; Commentary:
 
 ;; This package provides a tree-sitter based major mode for the Scala
-;; programming language. Currently, the supported features and their statuses are
+;; programming language.  Currently, the supported features and their
+;; statuses are
 ;; 1. font-locking (complete, looking for bugs and maintainance)
 ;; 2. imenu (basic support, needs work)
 ;; 3. indentation (initial support, incomplete, broken)
