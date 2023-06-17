@@ -370,12 +370,15 @@
 
 (defun scala-ts-mode--indent-no-node (_node _parent bol)
   "Indent NODE at BOL with PARENT if it matches no-node."
-  (let ((last-node (treesit-node-at (1- bol)))
-        (offset scala-ts-mode-indent-offset))
-    (pcase (treesit-node-type last-node)
-      (?+ (+ ,offset bol))
-      (?: (+ ,offset bol))
-      (_ bol))))
+  (save-excursion
+    (let ((offset scala-ts-mode-indent-offset)
+          (pos (re-search-backward "[=:]$" nil t)))
+      (if pos
+          (progn
+            (goto-char pos)
+            (back-to-indentation)
+            (+ offset (point)))
+        bol))))
 
 (defvar scala-ts-mode--indent-rules
   (let ((offset scala-ts-mode-indent-offset))
@@ -407,12 +410,14 @@
                         "enum_body"
                         "template_body")
                    t))
-        no-indent 0)
+        prev-sibling 0)
        ((node-is "indented_block") parent-bol ,offset)
        ((node-is "block") parent ,offset)
        ((parent-is "indented_block") parent 0)
-       ((parent-is "ERROR") no-indent 0)
-       (no-node no-indent 0))))
+       ((query ((ERROR) @return)) no-indent 0)
+       (no-node
+        scala-ts-mode--indent-no-node
+        0))))
   "Tree-sitter indent rules for `scala-ts-mode'.")
 
 (defun scala-ts-mode--defun-name (node)
