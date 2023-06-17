@@ -293,6 +293,7 @@
      (interpolation "$" @font-lock-string-face)))
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
+;; TODO We'll get to this later
 (defun scala-ts-mode--indent-end (node _parent _bol)
   "Indent NODE if it is an end clause."
   (let ((label (treesit-node-text (treesit-node-next-sibling node) t)))
@@ -369,25 +370,19 @@
 
 (defun scala-ts-mode--indent-no-node (_node _parent bol)
   "Indent NODE at BOL with PARENT if it matches no-node."
-  (save-excursion
-    (goto-char bol)
-    (forward-line -1)
-    (end-of-line)
-    (if (or (char-equal (char-after (1- (point)))
-                        ?=)
-            (char-equal (char-after (1- (point)))
-                        ?:))
-        (progn
-					(beginning-of-line)
-					(point))
-			(- bol scala-ts-mode-indent-offset))))
+  (let ((last-node (treesit-node-at (1- bol)))
+        (offset scala-ts-mode-indent-offset))
+    (pcase (treesit-node-type last-node)
+      (?+ (+ ,offset bol))
+      (?: (+ ,offset bol))
+      (_ bol))))
 
 (defvar scala-ts-mode--indent-rules
   (let ((offset scala-ts-mode-indent-offset))
     `((scala
-       ((node-is "comment") parent 0)
+       ((node-is "comment") no-indent 0)
        ((node-is "}") parent-bol 0)
-       ((node-is "end") scala-ts-mode--indent-end 0)
+       ;; ((node-is "end") scala-ts-mode--indent-end 0)
        ((parent-is "if_expression") scala-ts-mode--indent-if 0)
        ((parent-is ,(rx-to-string
                      '(or "trait_definition"
@@ -401,13 +396,23 @@
                           "template_body")
                      t))
         parent-bol ,offset)
+       ((node-is ,(rx-to-string
+                   '(or "trait_definition"
+                        "function_definition"
+                        "object_definition"
+                        "class_definition"
+                        "enum_definition"
+                        "val_definition"
+                        "var_definition"
+                        "enum_body"
+                        "template_body")
+                   t))
+        no-indent 0)
        ((node-is "indented_block") parent-bol ,offset)
        ((node-is "block") parent ,offset)
        ((parent-is "indented_block") parent 0)
-       ((parent-is "ERROR") prev-line 2)
-       (no-node
-        scala-ts-mode--indent-no-node
-        ,offset))))
+       ((parent-is "ERROR") no-indent 0)
+       (no-node no-indent 0))))
   "Tree-sitter indent rules for `scala-ts-mode'.")
 
 (defun scala-ts-mode--defun-name (node)
