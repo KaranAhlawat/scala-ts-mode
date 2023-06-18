@@ -298,6 +298,7 @@
   "Indent NODE if it is an end clause."
   (let ((label (treesit-node-text (treesit-node-next-sibling node) t)))
     (cond
+     ;; Check if end <identifier> is already correctly indented
      ((let ((next-sibling (treesit-node-next-sibling node))
             (prev-sibling (treesit-node-prev-sibling node)))
         (and (string=
@@ -311,6 +312,17 @@
               (treesit-node-text
                (treesit-node-child prev-sibling 0 t)))
              (treesit-node-start prev-sibling))))
+     ;; check if end val is already correctly indented
+     ((let ((next-sibling (treesit-node-next-sibling node))
+            (prev-sibling (treesit-node-prev-sibling node)))
+        (and (string=
+              (treesit-node-type next-sibling)
+              "val")
+             (string=
+              "val_definition"
+              (treesit-node-type prev-sibling))
+             (treesit-node-start prev-sibling))))
+     ;; indent end <identifier> correctly
      ((string= (treesit-node-type (treesit-node-next-sibling node))
                "_end_ident")
       (treesit-node-start (treesit-parent-until
@@ -320,13 +332,35 @@
                                    "definition"
                                    (treesit-node-type node))
                                   (string= label
-                                           (treesit-node-text (treesit-node-child node 0 t))))))))
+                                           (treesit-node-text
+                                            (treesit-node-child node 0 t))))))))
+     ;; indent end <everything eles> correctly
      (t
       (treesit-node-start (treesit-parent-until
                            node
                            (lambda (node)
-                             (string-match-p label
-                                             (treesit-node-type node)))))))))
+                             (pcase label
+                               ("if" (scala-ts-mode--node-type=
+                                      "if_expression" node))
+                               ("while" (scala-ts-mode--node-type=
+                                         "while_expression" node))
+                               ("for" (scala-ts-mode--node-type=
+                                       "for_expression" node))
+                               ("match" (scala-ts-mode--node-type=
+                                         "match_expression" node))
+                               ("try" (scala-ts-mode--node-type=
+                                       "try_expression" node))
+                               ("new" (scala-ts-mode--node-type=
+                                       "instance_expression" node))
+                               ("given" (scala-ts-mode--node-type=
+                                         "given_expression" node))
+                               ("val" (scala-ts-mode--node-type=
+                                       "val_definition" node))))))))))
+
+
+(defun scala-ts-mode--node-type= (type node)
+  "Compare TYPE and type of NODE for string equality."
+  (string= type (treesit-node-type node)))
 
 (defun scala-ts-mode--indent-if (node parent _bol)
   "Indent NODE at BOL if it's PARENT is if_expression."
