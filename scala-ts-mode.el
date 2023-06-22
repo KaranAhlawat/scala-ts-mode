@@ -451,15 +451,10 @@
 
        ;; Normal definitions
        ((parent-is "^compilation_unit$") column-0 0)
-       ((parent-is "^trait_definition$") parent-bol ,offset)
-       ((parent-is "^function_definition$") parent-bol ,offset)
-       ((parent-is "^object_definition$") parent-bol ,offset)
-       ((parent-is "^class_definition$") parent-bol ,offset)
-       ((parent-is "^enum_definition$") parent-bol ,offset)
-       ((parent-is "^val_definition$") parent-bol ,offset)
-       ((parent-is "^var_definition$") parent-bol ,offset)
+       ((parent-is "definition") parent-bol ,offset)
        ((parent-is "^enum_body$") parent-bol ,offset)
        ((parent-is "^template_body$") parent-bol ,offset)
+       ((parent-is "^with_template_body$") parent-bol ,offset)
        
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
