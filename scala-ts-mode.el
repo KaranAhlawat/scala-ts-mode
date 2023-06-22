@@ -353,6 +353,19 @@
 
 (defun scala-ts--indent-no-node (_node _parent _bol)
   "Indent when the node at point is nil."
+;; TODO: Fix {}
+(defun scala-ts--indent-error (node parent _bol)
+  (let ((offset scala-ts-indent-offset)
+        (node (or node (treesit-node-child parent -1 nil))))
+    (message "Node: %s\nParent: %s"
+             (treesit-node-type node)
+             (treesit-node-type parent))
+    (save-excursion
+      (pcase (treesit-node-type node)
+        ((rx scala-ts--indent eol)
+         (goto-char (treesit-node-start node))
+         (back-to-indentation)
+         (+ offset (point)))))))
 (defun scala-ts--indent-no-node (_node _parent bol)
   "Return anchor position when node is nil with BOL."
   (save-excursion
