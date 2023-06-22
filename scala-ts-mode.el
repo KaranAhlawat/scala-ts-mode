@@ -110,6 +110,9 @@
   '("." "," ";")
   "Delimiters for `scala-ts-mode'.")
 
+(rx-define scala-ts--indent
+  (| ":" "=" "{" "[" "(" "with"))
+
 (defvar scala-ts--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'scala
