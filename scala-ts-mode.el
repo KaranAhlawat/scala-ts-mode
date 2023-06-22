@@ -351,13 +351,10 @@
                                        (string= (treesit-node-type cur-node)
                                                 "if_expression")))))))))
 
-;; TODO: Fix {}
 (defun scala-ts--indent-error (node parent _bol)
+  "Return anchor position for NODE where PARENT is ERROR."
   (let ((offset scala-ts-indent-offset)
         (node (or node (treesit-node-child parent -1 nil))))
-    (message "Node: %s\nParent: %s"
-             (treesit-node-type node)
-             (treesit-node-type parent))
     (save-excursion
       (pcase (treesit-node-type node)
         ((rx scala-ts--indent eol)
@@ -374,8 +371,6 @@
                                                  space
                                                  blank)))))
            (last-node (treesit-node-at pos)))
-      (message "NodeText: %s"
-               (treesit-node-text last-node t))
       (pcase (treesit-node-type last-node)
         
         ("ERROR"
