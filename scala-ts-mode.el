@@ -468,30 +468,36 @@
        ((parent-is "^enum_body$") parent-bol ,offset)
        ((parent-is "^template_body$") parent-bol ,offset)
        
-       ((node-is "^trait_definition$") prev-sibling 0)
-       ((node-is "^function_definition$") prev-sibling 0)
-       ((node-is "^object_definition$") prev-sibling 0)
-       ((node-is "^class_definition$") prev-sibling 0)
-       ((node-is "^enum_definition$") prev-sibling 0)
-       ((node-is "^val_definition$") prev-sibling 0)
-       ((node-is "^var_definition$") prev-sibling 0)
+       ((node-is "definition") prev-sibling 0)
+       ((node-is "declaration") prev-sibling 0)
        ((node-is "^enum_body$") prev-sibling 0)
        ((node-is "^template_body$") prev-sibling 0)
 
        ((n-p-gp "^identifier$" "^indented_block$" nil)
-        (lambda (n p _bol)
-          (when (member (treesit-node-text n)
-                        '("then" "catch" "else" "finally"))
-            (- (treesit-node-start p) ,offset)))
+        (lambda (node parent _bol)
+          (when (member (treesit-node-text node)
+                        '("then"
+                          "catch"
+                          "else"
+                          "finally"))
+            (- (treesit-node-start parent) ,offset)))
         0)
        
        ((n-p-gp "^call_expression$" "^indented_block$" nil)
-        (lambda (n p _bol)
-          (when (member (treesit-node-text (treesit-node-child-by-field-name
-                                            n
-                                            "function"))
-                        '("then" "catch" "else" "finally"))
-            (- (treesit-node-start p) ,offset)))
+        (lambda (node parent _bol)
+          (when-let ((func-node (treesit-node-child-by-field-name
+                                 node
+                                 "function"))
+                     (is-member (member (treesit-node-text func-node)
+                                        '("then"
+                                          "catch"
+                                          "else"
+                                          "finally")))
+                     (is-block (string= (treesit-node-type
+                                         (treesit-node-next-sibling
+                                          func-node))
+                                        "block")))
+            (- (treesit-node-start parent) ,offset)))
         0)
        
        ((n-p-gp "^indented_block$" "^ERROR$" nil) no-indent 0)
