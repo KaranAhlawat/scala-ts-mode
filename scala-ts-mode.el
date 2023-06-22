@@ -351,8 +351,6 @@
                                        (string= (treesit-node-type cur-node)
                                                 "if_expression")))))))))
 
-(defun scala-ts--indent-no-node (_node _parent _bol)
-  "Indent when the node at point is nil."
 ;; TODO: Fix {}
 (defun scala-ts--indent-error (node parent _bol)
   (let ((offset scala-ts-indent-offset)
@@ -366,17 +364,26 @@
          (goto-char (treesit-node-start node))
          (back-to-indentation)
          (+ offset (point)))))))
+
+;; TODO: Fix for
 (defun scala-ts--indent-no-node (_node _parent bol)
   "Return anchor position when node is nil with BOL."
   (save-excursion
     (let* ((offset scala-ts-indent-offset)
-           (pos (re-search-backward
-                 (rx (not
-                      (in control
-                          space
-                          blank)))))
+           (pos (re-search-backward (rx (not (in control
+                                                 space
+                                                 blank)))))
            (last-node (treesit-node-at pos)))
-      (pcase (treesit-node-text last-node t)
+      (message "NodeText: %s"
+               (treesit-node-text last-node t))
+      (pcase (treesit-node-type last-node)
+        
+        ("ERROR"
+         (scala-ts--indent-error
+          (treesit-node-child last-node -1)
+          last-node
+          bol))
+        
         ((rx (| "for"
                 "yield"
                 "if"
@@ -384,92 +391,70 @@
                 "else"
                 "try"
                 "catch"
-                "finally")
+                "finally"
+                "match")
              eol)
          (goto-char (treesit-node-start last-node))
-         (backward-word)
+         (back-to-indentation)
          (if (looking-at-p "end")
              (point)
            (goto-char (treesit-node-start last-node))
+           (when (string= (treesit-node-type last-node)
+                          "match")
+             (back-to-indentation))
            (+ offset (point))))
-        
-        ((rx (| ":"
-                "="
-                "{"
-                "with")
-             eol)
-         (re-search-backward (rx (| ":"
-                                    "="
-                                    "{")
-                                 eol)
-                             (treesit-node-start last-node)
-                             t)
-         ;; (goto-char (treesit-node-end last-node))
+
+        ((rx scala-ts--indent eol)
+         (goto-char (treesit-node-start last-node))
          (back-to-indentation)
          (+ offset (point)))
 
-        ("match"
-         (goto-char (treesit-node-start last-node))
-         (backward-word)
-         (if (looking-at-p "end")
-             (point)
-           (+ offset (point))))
-        
-        ((rx "}" eol)
+        ("identifier"
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
-         (if (= (point)
-                (treesit-node-start last-node))
-             (treesit-node-start last-node)
-           (- (point) offset))) ; essentially a dedent
-        
+         (if (string-empty-p (treesit-node-text last-node))
+             (+ offset (point))
+           (point)))
+
+        ((rx bol (| "template_body" "indented_block") eol)
+         (goto-char (treesit-node-start (treesit-node-parent last-node)))
+         (+ offset (point)))
+
         (_
-         (goto-char (treesit-node-end last-node))
+         (goto-char (treesit-node-start last-node))
          (back-to-indentation)
          (point))))))
-
-;; TODO fix and clean up
-(defun scala-ts--indent-for (node parent _bol)
-  "Indent NODE if it's PARENT is if_expression."
-  (if (string= (treesit-node-type node)
-               "ERROR")
-      (treesit-node-start (treesit-node-parent parent))
-    (let ((offset scala-ts-indent-offset)
-          (prev-sibling (treesit-node-prev-sibling node)))
-      (if prev-sibling
-          (treesit-node-start prev-sibling)
-        (+ offset (treesit-node-start (treesit-node-parent parent)))))))
-
+                                        ;
 (defvar scala-ts--indent-rules
   (let ((offset scala-ts-indent-offset))
     `((scala
        ((node-is "^comment$") no-indent 0)
        
        ((node-is "^}$") parent-bol 0)
+       ((node-is "^)$") parent-bol 0)
        
        ((parent-is "^if_expression$") scala-ts--indent-if 0)
        
-       ((n-p-gp "^enumerators$" "^for_expression$" nil) parent ,offset)
+       ((n-p-gp "^enumerators$" "^for_expression$" nil) parent-bol ,offset)
+       ((n-p-gp "^enumerator$" "^enumerators$" nil) parent 0)
        ((n-p-gp "^ERROR$" "^enumerators$" nil) prev-line ,(- offset))
-       ((n-p-gp "^yield$" "^for_expression$" nil) parent 0)
+       ((n-p-gp "^yield$" "^for_expression$" nil) parent-bol 0)
        
-       ((n-p-gp "^catch$" "^try_expression$" nil) parent 0)
+       ((n-p-gp "^catch_clause$" "^try_expression$" nil) parent 0)
+
+       ((n-p-gp "^indented_cases$" "^match_expression" nil) parent-bol ,offset)
+       ((n-p-gp "^case_clause$" "^indented_cases$" nil) parent 0)
        
        ((node-is "^end$") scala-ts--indent-end 0)
        
        ;; Handle function annotations
        ((n-p-gp "^def$" "^function_definition$" nil) parent 0)
 
-       
-       ((parent-is "^ERROR$")
-        (lambda (n p b)
-          (message "Parent: %s" (treesit-node-text (treesit-node-child p 0)))
-          b)
-        0)
-       
        ;; The beast, no-nodes (and ERROR nodes)
+       ((parent-is "^ERROR$") scala-ts--indent-error 0)
        (no-node scala-ts--indent-no-node 0)
-       
+
+       ;; Normal definitions
        ((parent-is "^compilation_unit$") column-0 0)
        ((parent-is "^trait_definition$") parent-bol ,offset)
        ((parent-is "^function_definition$") parent-bol ,offset)
