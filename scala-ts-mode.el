@@ -270,7 +270,7 @@
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
 (defun scala-ts--indent-end (node _parent _bol)
-  "Indent end NODE."
+  "Return anchor position for end clause NODE."
   (let ((label (treesit-node-text (treesit-node-next-sibling node) t)))
     (cond
      ;; Check if end <identifier> is already correctly indented
@@ -309,7 +309,7 @@
 
 
 (defun scala-ts--indent-if (node parent _bol)
-  "Indent NODE with if_expression PARENT."
+  "Return anchor position for NODE when PARENT is if_expression."
   (let ((offset scala-ts-indent-offset))
     (cond
      ((and (string= (treesit-node-type node)
@@ -350,6 +350,8 @@
 
 (defun scala-ts--indent-no-node (_node _parent _bol)
   "Indent when the node at point is nil."
+(defun scala-ts--indent-no-node (_node _parent bol)
+  "Return anchor position when node is nil with BOL."
   (save-excursion
     (let* ((offset scala-ts-indent-offset)
            (pos (re-search-backward
