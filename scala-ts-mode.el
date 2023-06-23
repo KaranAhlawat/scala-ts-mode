@@ -469,6 +469,10 @@
        ((parent-is "^template_body$") parent-bol ,offset)
        ((parent-is "^with_template_body$") parent-bol ,offset)
        ((parent-is "^field_expression$") parent-bol ,offset)
+       ((parent-is "^class_parameters$") parent-bol ,(* 2 offset))
+       ((parent-is "^parameters$") parent-bol ,(* 2 offset))
+       ((parent-is "^arguments$") parent-bol ,offset)
+       ((parent-is "^tuple_expression$") parent ,offset)
        
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
@@ -477,37 +481,37 @@
 
        ((n-p-gp "^identifier$" "^indented_block$" nil)
         (lambda (node parent _bol)
-          (when (member (treesit-node-text node)
-                        '("then"
-                          "catch"
-                          "else"
-                          "finally"))
-            (- (treesit-node-start parent) ,offset)))
+          (if (member (treesit-node-text node)
+                      '("then"
+                        "catch"
+                        "else"
+                        "finally"))
+              (- (treesit-node-start parent) ,offset)
+            (treesit-node-start parent)))
         0)
        
        ((n-p-gp "^call_expression$" "^indented_block$" nil)
         (lambda (node parent _bol)
-          (when-let ((func-node (treesit-node-child-by-field-name
-                                 node
-                                 "function"))
-                     (is-member (member (treesit-node-text func-node)
-                                        '("then"
-                                          "catch"
-                                          "else"
-                                          "finally")))
-                     (is-block (string= (treesit-node-type
-                                         (treesit-node-next-sibling
-                                          func-node))
-                                        "block")))
-            (- (treesit-node-start parent) ,offset)))
+          (if-let ((func-node (treesit-node-child-by-field-name
+                               node
+                               "function"))
+                   (is-member (member (treesit-node-text func-node)
+                                      '("then"
+                                        "catch"
+                                        "else"
+                                        "finally")))
+                   (is-block (string= (treesit-node-type
+                                       (treesit-node-next-sibling
+                                        func-node))
+                                      "block")))
+              (- (treesit-node-start parent) ,offset)
+            (treesit-node-start parent)))
         0)
        
        ((n-p-gp "^indented_block$" "^ERROR$" nil) no-indent 0)
        ((parent-is "^indented_block$") parent 0)
        ((node-is "^indented_block$") parent-bol ,offset)
        ((node-is "^block$") parent ,offset)
-       
-       ;; Uhhh I don't think this is very good :)
        )))
   "Tree-sitter indent rules for `scala-ts-mode'.")
 
