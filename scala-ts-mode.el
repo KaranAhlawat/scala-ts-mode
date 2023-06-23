@@ -424,7 +424,7 @@
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
          (point))))))
-                                        ;
+
 (defvar scala-ts--indent-rules
   (let ((offset scala-ts-indent-offset))
     `((scala
@@ -444,6 +444,9 @@
 
        ((n-p-gp "^indented_cases$" "^match_expression" nil) parent-bol ,offset)
        ((n-p-gp "^case_clause$" "^indented_cases$" nil) parent 0)
+       ((n-p-gp "^case_clause$" "^case_block$" nil) parent-bol ,offset)
+       ((n-p-gp "[.]" "^field_expression$" "^case_clause$") prev-sibling 0)
+       ((parent-is "^case_clause$") parent ,offset)
        
        ((node-is "^end$") scala-ts--indent-end 0)
        
@@ -451,6 +454,11 @@
        ((n-p-gp "^def$" "^function_definition$" nil) parent 0)
 
        ;; The beast, no-nodes (and ERROR nodes)
+       ((n-p-gp ,(rx bol scala-ts--indent-keywords eol)
+                "^ERROR$"
+                nil)
+        no-indent
+        0)
        ((parent-is "^ERROR$") scala-ts--indent-error 0)
        (no-node scala-ts--indent-no-node 0)
 
@@ -460,6 +468,7 @@
        ((parent-is "^enum_body$") parent-bol ,offset)
        ((parent-is "^template_body$") parent-bol ,offset)
        ((parent-is "^with_template_body$") parent-bol ,offset)
+       ((parent-is "^field_expression$") parent-bol ,offset)
        
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
