@@ -111,7 +111,11 @@
   "Delimiters for `scala-ts-mode'.")
 
 (rx-define scala-ts--indent
-  (| ":" "=" "{" "[" "(" "with"))
+  (| ":" "=" "{" "[" "(" "with" "=>"))
+
+(rx-define scala-ts--indent-keywords
+  (| "for" "yield" "if" "then" "else"
+     "try" "catch" "finally" "match"))
 
 (defvar scala-ts--treesit-font-lock-settings
   (treesit-font-lock-rules
@@ -372,23 +376,10 @@
                                                  blank)))))
            (last-node (treesit-node-at pos)))
       (pcase (treesit-node-type last-node)
-        
         ("ERROR"
-         (scala-ts--indent-error
-          (treesit-node-child last-node -1)
-          last-node
-          bol))
+         (scala-ts--indent-error nil last-node bol))
         
-        ((rx (| "for"
-                "yield"
-                "if"
-                "then"
-                "else"
-                "try"
-                "catch"
-                "finally"
-                "match")
-             eol)
+        ((rx scala-ts--indent-keywords eol)
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
          (if (looking-at-p "end")
