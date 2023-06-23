@@ -357,11 +357,25 @@
 
 (defun scala-ts--indent-error (node parent _bol)
   "Return anchor position for NODE where PARENT is ERROR."
-  (let ((offset scala-ts-indent-offset)
-        (node (or node (treesit-node-child parent -1 nil))))
-    (save-excursion
+  (save-excursion
+    (let* ((offset scala-ts-indent-offset)
+           (pos (re-search-backward (rx (not (in control
+                                                 blank
+                                                 space)))
+                                    (treesit-node-start parent)
+                                    t))
+           (node (or node (treesit-node-at pos))))
       (pcase (treesit-node-type node)
-        ((rx scala-ts--indent eol)
+        ("."
+         (forward-line -1)
+         (back-to-indentation)
+         (let ((prev (treesit-node-at (point))))
+           (if (string= (treesit-node-type prev)
+                        "identifier")
+               (+ offset (treesit-node-start prev))
+             (treesit-node-start prev))))
+        
+        ((rx (| scala-ts--indent-keywords scala-ts--indent) eol)
          (goto-char (treesit-node-start node))
          (back-to-indentation)
          (+ offset (point)))))))
