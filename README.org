@@ -2,6 +2,11 @@
 
 #+PROPERTY: LOGGING nil
 
+** Note
+The project is *not* abandoned, please feel free to open issues and/or PRs. There's mostly no activity because I think it's used a useable enough state, and also because I've been writing a tad less Scala lately (which will change soon, so I will probably get back to enhancing it sometime late this year or early next year).
+
+
+* Introduction
 ~scala-ts-mode~ is a [[https://tree-sitter.github.io/tree-sitter/][tree-sitter]] based GNU Emacs major mode built on top of the Emacs 29+ ~treesit~ library. It provides the following features in a Scala buffer-
 1. efficient font-locking using tree-sitter
 2. ~imenu~ integration (TODO)
