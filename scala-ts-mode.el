@@ -5,7 +5,7 @@
 ;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
 ;; Version: 0.0.1
 ;; Filename: scala-ts-mode.el
-;; Package-Requires: ((emacs "29.0.91"))
+;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: scala, languages, tree-sitter
 ;; URL: https://github.com/KaranAhlawat/scala-ts-mode
 
