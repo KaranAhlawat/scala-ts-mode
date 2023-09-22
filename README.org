@@ -3,7 +3,7 @@
 #+PROPERTY: LOGGING nil
 
 ** Note
-The project is *not* abandoned, please feel free to open issues and/or PRs. There's mostly no activity because I think it's used a useable enough state, and also because I've been writing a tad less Scala lately (which will change soon, so I will probably get back to enhancing it sometime late this year or early next year).
+The project is *not* abandoned, please feel free to open issues and/or PRs. There's mostly no activity because I think it's in a decent state, and also because I've been writing a tad less Scala lately (which will change soon, so I will probably get back to enhancing it sometime late this year or early next year).
 
 
 * Introduction
