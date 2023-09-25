@@ -143,13 +143,14 @@
    
    :language 'scala
    :feature 'comment
-   '((comment) @font-lock-comment-face)
+   '((comment) @font-lock-comment-face
+     (block_comment) @font-lock-comment-face)
 
    :language 'scala
    :feature 'doc-comment
    :override t
-   `((((comment) @font-lock-doc-face)
-      (:match ,(rx-to-string '( : bol "/*"
+   `((((block_comment) @font-lock-doc-face)
+      (:match ,(rx-to-string '( : bol "/**"
                                 (* (| (not "*")
                                       (: "*" (not "/"))))
                                 (+ "*") "/")
