@@ -70,11 +70,10 @@
     (modify-syntax-entry ?'  "/" table)  ; Char start
     (modify-syntax-entry ?/ "< 12" table) ; Comment seq a, first two char are /
     (modify-syntax-entry ?\n ">" table) ; Comment seq a, ends with a newline
-    (modify-syntax-entry ?/ ". 14b") ; Comment seq b, starts and ends with /
-    (modify-syntax-entry ?* ". 23b") ; Comment seq b, second start and first end char is *
+    (modify-syntax-entry ?/ ". 14b" table) ; Comment seq b, starts and ends with /
+    (modify-syntax-entry ?* ". 23b" table) ; Comment seq b, second start and first end char is *
     table)
   "Syntax table for `scala-ts-mode'.")
-
 
 ;; utility functions -- begin
 
