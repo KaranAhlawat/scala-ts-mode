@@ -29,7 +29,7 @@
 ;; statuses are
 ;; 1. font-locking (complete, looking for bugs and maintainance)
 ;; 2. imenu (basic support, needs work)
-;; 3. indentation (initial support, incomplete, broken)
+;; 3. indentation
 
 ;;; Code:
 
