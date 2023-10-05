@@ -222,8 +222,7 @@
       (:match "^[A-Z]" @font-lock-function-call-face))
      (generic_function
       function: (identifier) @font-lock-function-call-face)
-     (interpolated_string_expression
-      interpolator: (identifier) @font-lock-function-call-face)
+     
 
      ;; function definitions
      (function_definition
@@ -269,11 +268,19 @@
       (symbol_literal)
       (string)
       (character_literal)
+      ] @font-lock-string-face)
+
+   :language 'scala
+   :feature 'interpolation
+   :override t
+   '((interpolation [(block) (identifier)] @font-lock-variable-use-face)
+     (interpolation (block ["{" "}"] @font-lock-bracket-face))
+     (interpolated_string_expression
+      interpolator: (identifier) @font-lock-function-call-face)
+     [
       (interpolated_string)
-      (interpolated_string_expression)
-      ] @font-lock-string-face
-     (interpolation) @font-lock-string-face
-     (interpolation "$" @font-lock-string-face)))
+      "$"
+      ] @font-lock-string-face))
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
 (defun scala-ts--indent-end (node _parent _bol)
@@ -553,7 +560,7 @@ Return nil if there is no name or if NODE is not a defun node."
     (setq-local treesit-font-lock-feature-list '((comment doc-comment definition)
                                                  (keyword  type)
                                                  (import extra)
-                                                 (variable function operator literal)))
+                                                 (variable function operator literal interpolation)))
 
 
     (setq-local
