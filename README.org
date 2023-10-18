@@ -12,7 +12,7 @@ The project is *not* abandoned, please feel free to open issues and/or PRs. Ther
 2. ~imenu~ integration (TODO)
 3. indentation support using tree-sitter (TODO)
 
-The major-mode is very much under work right now, and as such may change and/or break frequently it a stable point of release is reached.
+The major-mode is, although not complete, is in a pretty usable state right now. Improvements will come as I find bugs, edge cases, more use cases or the upstream grammar evolves. 
 
 * Requirements
 To use the package, the following dependencies are required.
