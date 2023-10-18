@@ -476,8 +476,8 @@
        ((parent-is "^template_body$") parent-bol ,offset)
        ((parent-is "^with_template_body$") parent-bol ,offset)
        ((parent-is "^field_expression$") parent-bol ,offset)
-       ((parent-is "^class_parameters$") parent-bol ,(* 2 offset))
-       ((parent-is "^parameters$") parent-bol ,(* 2 offset))
+       ((parent-is "^class_parameters$") parent-bol ,offset)
+       ((parent-is "^parameters$") parent-bol ,offset)
        ((parent-is "^arguments$") parent-bol ,offset)
        ((parent-is "^tuple_expression$") parent ,offset)
        
