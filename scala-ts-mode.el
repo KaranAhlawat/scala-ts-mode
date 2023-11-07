@@ -172,36 +172,6 @@
       name: (identifier) @font-lock-type-face))
 
    :language 'scala
-   :feature 'variable
-   '((class_parameter
-      name: (identifier) @font-lock-variable-name-face)
-     (val_definition
-      pattern: (identifier) @font-lock-variable-name-face)
-     (var_definition
-      pattern: (identifier) @font-lock-variable-name-face)
-     (val_declaration
-      name: (identifier) @font-lock-variable-name-face)
-     (var_declaration
-      name: (identifier) @font-lock-variable-name-face)
-     ;; expressions
-     (field_expression field: (identifier) @font-lock-property-use-face)
-     ;; this and super
-     (((identifier) @font-lock-builtin-face)
-      (:match "^this$" @font-lock-builtin-face))
-     (((identifier) @font-lock-builtin-face)
-      (:match "^super$" @font-lock-builtin-face)))
-
-   :language 'scala
-   :feature 'type
-   '((type_identifier) @font-lock-type-face
-     ;; expressions
-     ((field_expression
-       value: (identifier) @font-lock-type-face)
-      (:match "^[A-Z]" @font-lock-type-face))
-     (((identifier) @font-lock-type-face)
-      (:match "^[A-Z]" @font-lock-type-face)))
-
-   :language 'scala
    :feature 'function
    '(;; method definitions
      (function_declaration
@@ -231,6 +201,36 @@
       name: (identifier) @font-lock-variable-name-face)
      (binding
       name: (identifier) @font-lock-variable-name-face))
+
+   :language 'scala
+   :feature 'variable
+   '((class_parameter
+      name: (identifier) @font-lock-variable-name-face)
+     (val_definition
+      pattern: (identifier) @font-lock-variable-name-face)
+     (var_definition
+      pattern: (identifier) @font-lock-variable-name-face)
+     (val_declaration
+      name: (identifier) @font-lock-variable-name-face)
+     (var_declaration
+      name: (identifier) @font-lock-variable-name-face)
+     ;; expressions
+     (field_expression field: (identifier) @font-lock-property-use-face)
+     ;; this and super
+     (((identifier) @font-lock-builtin-face)
+      (:match "^this$" @font-lock-builtin-face))
+     (((identifier) @font-lock-builtin-face)
+      (:match "^super$" @font-lock-builtin-face)))
+
+   :language 'scala
+   :feature 'type
+   '((type_identifier) @font-lock-type-face
+     ;; expressions
+     ((field_expression
+       value: (identifier) @font-lock-type-face)
+      (:match "^[A-Z]" @font-lock-type-face))
+     (((identifier) @font-lock-type-face)
+      (:match "^[A-Z]" @font-lock-type-face)))
 
    :language 'scala
    :feature 'import
