@@ -394,7 +394,12 @@
         ((rx (| scala-ts--indent-keywords scala-ts--indent) eol)
          (goto-char (treesit-node-start node))
          (back-to-indentation)
-         (+ offset (point)))))))
+         (+ offset (point)))
+
+        (_
+         (goto-char (treesit-node-start node))
+         (back-to-indentation)
+         (point))))))
 
 (defun scala-ts--indent-no-node (_node _parent bol)
   "Return anchor position when node is nil with BOL."
@@ -433,6 +438,11 @@
 
         ((rx bol (| "template_body" "indented_block") eol)
          (goto-char (treesit-node-start (treesit-node-parent last-node)))
+         (+ offset (point)))
+
+        (")"
+         (goto-char (treesit-node-start last-node))
+         (back-to-indentation)
          (+ offset (point)))
 
         (_
