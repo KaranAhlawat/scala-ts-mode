@@ -116,6 +116,14 @@
   (| "for" "yield" "if" "then" "else"
      "try" "catch" "finally" "match"))
 
+;; TODO: wip
+(defvar scala-ts--treesit-range-settings
+  (treesit-range-rules
+   :embed 'scala
+   :host 'scala
+   '((interpolation [(block) (identifier)] @capture)))
+  "Treesitter range settings for `scala-ts-mode'.")
+
 (defvar scala-ts--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'scala
@@ -220,7 +228,8 @@
      (((identifier) @font-lock-builtin-face)
       (:match "^this$" @font-lock-builtin-face))
      (((identifier) @font-lock-builtin-face)
-      (:match "^super$" @font-lock-builtin-face)))
+      (:match "^super$" @font-lock-builtin-face))
+     (identifier) @font-lock-variable-name-face)
 
    :language 'scala
    :feature 'type
@@ -387,7 +396,6 @@
          (back-to-indentation)
          (+ offset (point)))))))
 
-;; TODO: Fix for
 (defun scala-ts--indent-no-node (_node _parent bol)
   "Return anchor position when node is nil with BOL."
   (save-excursion
@@ -556,7 +564,7 @@ Return nil if there is no name or if NODE is not a defun node."
     (setq-local comment-start-skip (rx "//" (* (syntax whitespace))))
 
     (setq-local treesit-font-lock-settings scala-ts--treesit-font-lock-settings)
-    ;; TODO Split this into levels to respect user choices
+    ;; (setq-local treesit-range-settings scala-ts--treesit-range-settings)
     (setq-local treesit-font-lock-feature-list '((comment doc-comment definition)
                                                  (keyword  type)
                                                  (import extra)
