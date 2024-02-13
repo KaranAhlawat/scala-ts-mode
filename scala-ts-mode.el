@@ -440,11 +440,6 @@
          (goto-char (treesit-node-start (treesit-node-parent last-node)))
          (+ offset (point)))
 
-        (")"
-         (goto-char (treesit-node-start last-node))
-         (back-to-indentation)
-         (+ offset (point)))
-
         (_
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
