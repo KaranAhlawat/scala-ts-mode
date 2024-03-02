@@ -445,17 +445,7 @@
          (back-to-indentation)
          (point))))))
 
-(defun scala-ts--find-parent (node pred)
-  "Find first parent node of NODE for which PRED return t."
-  (let ((result nil))
-    (cl-loop for cursor = node
-             then (treesit-node-parent cursor)
-             while (and (not result) cursor)
-             if (funcall pred cursor)
-             do (setq result cursor))
-    result))
-
-(defun scala-ts--move-out-of-indented-block(&rest _)
+(defun scala-ts--move-out-of-indented-block (&rest _)
   "Correction when jumping at the beginning of a defun.
 If point is in \"indented_block\" move it at the beginning of the
 block.  End search as soon as either \"indented_block\" is found
@@ -465,9 +455,9 @@ or node matching `treesit-defun-type-regexp' is found."
                    (or
                     (string= "indented_block" type)
                     (string-match-p treesit-defun-type-regexp type)))))
-         (node (scala-ts--find-parent (treesit-node-at (point)) pred)))
+         (node (treesit-parent-until (treesit-node-at (point)) pred t)))
     (when (string= "indented_block" (treesit-node-type node))
-        (goto-char (treesit-node-start node)))))
+      (goto-char (treesit-node-start node)))))
 
 (defvar scala-ts--indent-rules
   (let ((offset scala-ts-indent-offset))
@@ -609,11 +599,11 @@ Return nil if there is no name or if NODE is not a defun node."
 
     ;; Navigation.
     (setq-local treesit-defun-type-regexp
-                (regexp-opt '("class_definition"
-                              "object_definition"
-                              "trait_definition"
-                              "function_definition"
-                              "val_definition")))
+                (rx (or "class_definition"
+                        "object_definition"
+                        "trait_definition"
+                        "function_definition"
+                        "val_definition")))
 
     (setq-local treesit-defun-name-function #'scala-ts--defun-name)
     ;; TODO (could possibly be more complex?)
