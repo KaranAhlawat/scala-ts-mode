@@ -445,6 +445,20 @@
          (back-to-indentation)
          (point))))))
 
+(defun scala-ts--move-out-of-indented-block (&rest _)
+  "Correction when jumping at the beginning of a defun.
+If point is in \"indented_block\" move it at the beginning of the
+block.  End search as soon as either \"indented_block\" is found
+or node matching `treesit-defun-type-regexp' is found."
+  (let* ((pred (lambda (node)
+                 (let ((type (treesit-node-type node)))
+                   (or
+                    (string= "indented_block" type)
+                    (string-match-p treesit-defun-type-regexp type)))))
+         (node (treesit-parent-until (treesit-node-at (point)) pred t)))
+    (when (string= "indented_block" (treesit-node-type node))
+      (goto-char (treesit-node-start node)))))
+
 (defvar scala-ts--indent-rules
   (let ((offset scala-ts-indent-offset))
     `((scala
@@ -549,6 +563,10 @@ Return nil if there is no name or if NODE is not a defun node."
      (treesit-node-text
       (treesit-node-child-by-field-name node "name")
       t))
+    ("val_definition"
+     (treesit-node-text
+      (treesit-node-child-by-field-name node "pattern")
+      t))
     ("function_declaration"
      (treesit-node-text
       (treesit-node-child node 0)
@@ -579,6 +597,14 @@ Return nil if there is no name or if NODE is not a defun node."
     (setq-local
      treesit-simple-indent-rules scala-ts--indent-rules)
 
+    ;; Navigation.
+    (setq-local treesit-defun-type-regexp
+                (rx (or "class_definition"
+                        "object_definition"
+                        "trait_definition"
+                        "function_definition"
+                        "val_definition")))
+
     (setq-local treesit-defun-name-function #'scala-ts--defun-name)
     ;; TODO (could possibly be more complex?)
     (setq-local treesit-simple-imenu-settings
@@ -588,7 +614,9 @@ Return nil if there is no name or if NODE is not a defun node."
                   ("Object" "\\`object_definition\\'" nil nil)
                   ("Function" "\\`function_definition\\'" nil nil)
                   ("Definition" "\\`function_declaration'" nil nil)))
-    
+
+    (advice-add 'treesit-beginning-of-defun :before #'scala-ts--move-out-of-indented-block)
+
     (treesit-major-mode-setup)))
 
 ;;;###autoload
