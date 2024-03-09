@@ -3,7 +3,7 @@
 ;; Copyright (C) 2023  Karan Ahlawat
 
 ;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
-;; Version: 0.0.1
+;; Version: 1.0.0
 ;; Filename: scala-ts-mode.el
 ;; Package-Requires: ((emacs "29.1"))
 ;; Keywords: scala, languages, tree-sitter
@@ -136,7 +136,7 @@
      (open_modifier) @font-lock-keyword-face
      (inline_modifier) @font-lock-keyword-face
      [,@scala-ts--keywords-control] @font-lock-keyword-face
-     (null_literal) @font-lock-constant-face
+     (null_literal) @font-lock-builtin-face
      (wildcard) @font-lock-builtin-face
      (annotation) @font-lock-preprocessor-face
      ;; `case' is handled specially here, to limit it into a context
@@ -225,11 +225,11 @@
      ;; expressions
      (field_expression field: (identifier) @font-lock-property-use-face)
      ;; this and super
-     (((identifier) @font-lock-builtin-face)
-      (:match "^this$" @font-lock-builtin-face))
-     (((identifier) @font-lock-builtin-face)
-      (:match "^super$" @font-lock-builtin-face))
-     (identifier) @font-lock-variable-name-face)
+     (((identifier) @font-lock-variable-use-face)
+      (:match "^this$" @font-lock-variable-use-face))
+     (((identifier) @font-lock-function-call-face)
+      (:match "^super$" @font-lock-function-call-face))
+     (identifier) @font-lock-variable-use-face)
 
    :language 'scala
    :feature 'type
@@ -286,10 +286,8 @@
      (interpolation (block ["{" "}"] @font-lock-bracket-face))
      (interpolated_string_expression
       interpolator: (identifier) @font-lock-function-call-face)
-     [
-      (interpolated_string)
-      "$"
-      ] @font-lock-string-face))
+     (interpolated_string) @font-lock-string-face
+     "$" @font-lock-punctuation-face))
   "Treesitter font-lock settings for `scala-ts-mode'.")
 
 (defun scala-ts--indent-end (node _parent _bol)
