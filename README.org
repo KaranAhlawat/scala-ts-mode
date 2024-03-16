@@ -31,7 +31,7 @@ To install the package, you can use any Emacs package manager of your choice, to
 Then, you can simply call ~scala-ts-mode~ in a Scala buffer.
 
 * Configuration
-You may wish to customize `treesit-font-lock-level`, using `M-x customize-variable` or by adding a line such as this to your `~/.emacs.el`:
+You may wish to customize `treesit-font-lock-level`, using `M-x customize-variable` or by adding a line such as this to your user init file:
 
 #+begin_src emacs-lisp
 (setq treesit-font-lock-level 4)
