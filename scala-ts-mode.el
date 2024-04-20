@@ -608,7 +608,7 @@ Return nil if there is no name or if NODE is not a defun node."
     (setq-local treesit-simple-imenu-settings
                 `(("Class" "\\`class_definition\\'" nil nil)
                   ("Trait" "\\`trait_definition\\'" nil nil)
-                  ("Enum" "\\`enum_definition\\'"' nil nil)
+                  ("Enum" "\\`enum_definition\\'" nil nil)
                   ("Object" "\\`object_definition\\'" nil nil)
                   ("Function" "\\`function_definition\\'" nil nil)
                   ("Definition" "\\`function_declaration'" nil nil)))
