@@ -594,6 +594,7 @@ Return nil if there is no name or if NODE is not a defun node."
 
     (setq-local
      treesit-simple-indent-rules scala-ts--indent-rules)
+    (setq-local electric-indent-chars (append electric-indent-chars '(?.)))
 
     ;; Navigation.
     (setq-local treesit-defun-type-regexp
@@ -604,6 +605,7 @@ Return nil if there is no name or if NODE is not a defun node."
                         "val_definition")))
 
     (setq-local treesit-defun-name-function #'scala-ts--defun-name)
+
     ;; TODO (could possibly be more complex?)
     (setq-local treesit-simple-imenu-settings
                 `(("Class" "\\`class_definition\\'" nil nil)
