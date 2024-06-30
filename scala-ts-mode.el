@@ -542,6 +542,7 @@ or node matching `treesit-defun-type-regexp' is found."
        
        ((n-p-gp "^indented_block$" "^ERROR$" nil) no-indent 0)
        ((parent-is "^indented_block$") parent 0)
+       ((parent-is "^block$") parent-bol ,offset)
        ((node-is "^indented_block$") parent-bol ,offset)
        ((node-is "^block$") parent ,offset)
        )))
