@@ -1,6 +1,6 @@
 ;;; scala-ts-mode.el --- Scala Tree-Sitter Mode      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023  Karan Ahlawat
+;; Copyright (C) 2024  Karan Ahlawat
 
 ;; Author: Karan Ahlawat <ahlawatkaran12@gmail.com>
 ;; Version: 1.0.0
@@ -155,7 +155,7 @@
 
    :language 'scala
    :feature 'doc-comment
-   :override t
+   :override 'prepend
    `((((block_comment) @font-lock-doc-face)
       (:match ,(rx-to-string '( : bol "/**"
                                 (* (| (not "*")
@@ -281,7 +281,7 @@
 
    :language 'scala
    :feature 'interpolation
-   :override t
+   :override 'prepend
    '((interpolation [(block) (identifier)] @font-lock-variable-use-face)
      (interpolation (block ["{" "}"] @font-lock-bracket-face))
      (interpolated_string_expression
@@ -417,8 +417,8 @@
          (if (looking-at-p "end")
              (point)
            (goto-char (treesit-node-start last-node))
-           (when (string= (treesit-node-type last-node)
-                          "match")
+           (when (member (treesit-node-type last-node)
+                         '("match" "yield"))
              (back-to-indentation))
            (+ offset (point))))
 
@@ -466,6 +466,8 @@ or node matching `treesit-defun-type-regexp' is found."
        ((node-is "^)$") parent-bol 0)
        
        ((parent-is "^if_expression$") scala-ts--indent-if 0)
+       ;; Handle else-if
+       ((n-p-gp "^postfix_expression$" "^indented_block$" "^if_expression$") grand-parent 0)
        
        ((n-p-gp "^enumerators$" "^for_expression$" nil) parent-bol ,offset)
        ((n-p-gp "^enumerator$" "^enumerators$" nil) parent 0)
