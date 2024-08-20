@@ -1,0 +1,2 @@
+;;; Generated package description from scala-ts-mode.el  -*- no-byte-compile: t -*-
+(define-package "scala-ts-mode" "1.0.0" "An tree-sitter based major-mode for Scala" '((emacs "29.1")) :authors '(("Karan Ahlawat" . "ahlawatkaran12@gmail.com")) :maintainer '("Karan Ahlawat" . "ahlawatkaran12@gmail.com") :keywords '("emacs" "scala" "languages" "tree-sitter" "scala-ts-mode") :url "https://github.com/KaranAhlawat/scala-ts-mode")

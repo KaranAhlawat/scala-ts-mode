@@ -1,4 +1,4 @@
-;;; scala-ts-mode.el --- Scala Tree-Sitter Mode      -*- lexical-binding: t; -*-
+;;; scala-ts-mode.el --- An tree-sitter based major-mode for Scala -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024  Karan Ahlawat
 
@@ -6,7 +6,7 @@
 ;; Version: 1.0.0
 ;; Filename: scala-ts-mode.el
 ;; Package-Requires: ((emacs "29.1"))
-;; Keywords: scala, languages, tree-sitter
+;; Keywords: emacs, scala, languages, tree-sitter, scala-ts-mode
 ;; URL: https://github.com/KaranAhlawat/scala-ts-mode
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -118,8 +118,7 @@
 
 ;; TODO: wip
 (defvar scala-ts--treesit-range-settings
-  (treesit-range-rules
-   )
+  (treesit-range-rules)
   "Treesitter range settings for `scala-ts-mode'.")
 
 (defvar scala-ts--treesit-font-lock-settings
@@ -579,8 +578,7 @@ or node matching `treesit-defun-type-regexp' is found."
        ((parent-is "^indented_block$") parent 0)
        ((parent-is "^block$") parent-bol ,offset)
        ((node-is "^indented_block$") parent-bol ,offset)
-       ((node-is "^block$") parent ,offset)
-       )))
+       ((node-is "^block$") parent ,offset))))
   "Tree-sitter indent rules for `scala-ts-mode'.")
 
 (defun scala-ts--defun-name (node)
