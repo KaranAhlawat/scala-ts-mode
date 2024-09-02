@@ -231,6 +231,9 @@
    :language 'scala
    :feature 'type
    '((type_identifier) @font-lock-type-face
+     ("_end_ident" @font-lock-type-face
+      (:match "^[A-Z]" @font-lock-type-face))
+     "_end_ident" @font-lock-keyword-face
      ;; expressions
      ((field_expression
        value: (identifier) @font-lock-type-face)
@@ -509,8 +512,8 @@ or node matching `treesit-defun-type-regexp' is found."
                        "finally")
               (- ,offset)
             ,offset)))
-       ((parent-is "^case_clause$") parent ,offset)
-
+       ((parent-is "^case_clause$") parent-bol ,offset)
+       
        ((node-is "^end$") scala-ts--indent-end 0)
 
        ;; Handle function annotations
@@ -530,16 +533,18 @@ or node matching `treesit-defun-type-regexp' is found."
 
        ;; Normal definitions
        ((parent-is "^compilation_unit$") column-0 0)
-       ((parent-is "definition") parent-bol ,offset)
+       ((parent-is "definition$") parent-bol ,offset)
+       ((parent-is "^lambda_expression$") parent-bol ,offset)
        ((parent-is "^enum_body$") parent-bol ,offset)
+       ((n-p-gp nil "^template_body$" "definition$") grand-parent ,offset)
        ((parent-is "^template_body$") parent-bol ,offset)
        ((parent-is "^with_template_body$") parent-bol ,offset)
        ((parent-is "^field_expression$") parent-bol ,offset)
        ((parent-is "^class_parameters$") parent-bol ,offset)
        ((parent-is "^parameters$") parent-bol ,offset)
        ((parent-is "^arguments$") parent-bol ,offset)
-       ((parent-is "^tuple_expression$") parent ,offset)
-
+       ((parent-is "^tuple_expression$") parent-bol ,offset)
+       
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
        ((node-is "^enum_body$") prev-sibling 0)
