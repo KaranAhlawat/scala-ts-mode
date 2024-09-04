@@ -68,10 +68,10 @@
     (modify-syntax-entry ?\\ "\\" table) ; Escape seq start
     (modify-syntax-entry ?\" "\"" table) ; String start
     (modify-syntax-entry ?'  "/" table)  ; Char start
-    (modify-syntax-entry ?/ "< 12" table) ; Comment seq a, first two char are /
-    (modify-syntax-entry ?\n ">" table) ; Comment seq a, ends with a newline
-    (modify-syntax-entry ?/ ". 14b" table) ; Comment seq b, starts and ends with /
-    (modify-syntax-entry ?* ". 23b" table) ; Comment seq b, second start and first end char is *
+    (modify-syntax-entry ?/ ". 124b" table) ; Line/block comment // or /* */
+    (modify-syntax-entry ?* ". 23n" table) ; Block comment /* */
+    (modify-syntax-entry ?\n "> b" table) ; Comment ends with newline
+    (modify-syntax-entry ?\r "> b" table) ; Comment ends with carriage return
     table)
   "Syntax table for `scala-ts-mode'.")
 
@@ -144,7 +144,7 @@
    :feature 'extra
    `([,@scala-ts--brackets] @font-lock-bracket-face
      [,@scala-ts--delimiters] @font-lock-delimiter-face)
-   
+
    :language 'scala
    :feature 'comment
    '((comment) @font-lock-comment-face
@@ -197,7 +197,7 @@
       (:match "^[A-Z]" @font-lock-function-call-face))
      (generic_function
       function: (identifier) @font-lock-function-call-face)
-     
+
 
      ;; function definitions
      (function_definition
@@ -355,7 +355,7 @@
           (string= (treesit-node-type node)
                    "then"))
       0)
-     
+
      ;; indented and non
      (t offset))))
 
@@ -392,7 +392,7 @@
                         "identifier")
                offset
              0)))
-        
+
         ((rx (| scala-ts--indent-keywords scala-ts--indent) eol)
          offset)
 
@@ -408,7 +408,7 @@
       (pcase (treesit-node-type last-node)
         ("ERROR"
          (scala-ts--indent-error-anchor nil last-node pos))
-        
+
         ((rx scala-ts--indent-keywords eol)
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
@@ -440,7 +440,7 @@
       (pcase (treesit-node-type last-node)
         ("ERROR"
          (scala-ts--indent-error-offset nil last-node pos))
-        
+
         ((rx scala-ts--indent-keywords eol)
          (goto-char (treesit-node-start last-node))
          (back-to-indentation)
@@ -480,21 +480,21 @@ or node matching `treesit-defun-type-regexp' is found."
   (let ((offset scala-ts-indent-offset))
     `((scala
        ((node-is "^comment$") no-indent 0)
-       
+
        ((node-is "^}$") parent-bol 0)
        ((node-is "^)$") parent-bol 0)
-       
+
        ((parent-is "^if_expression$")
         scala-ts--indent-if-anchor
         scala-ts--indent-if-offset)
        ;; Handle else-if
        ((n-p-gp "^postfix_expression$" "^indented_block$" "^if_expression$") grand-parent 0)
-       
+
        ((n-p-gp "^enumerators$" "^for_expression$" nil) parent-bol ,offset)
        ((n-p-gp "^enumerator$" "^enumerators$" nil) parent 0)
        ((n-p-gp "^ERROR$" "^enumerators$" nil) prev-line ,(- offset))
        ((n-p-gp "^yield$" "^for_expression$" nil) parent-bol 0)
-       
+
        ((n-p-gp "^catch_clause$" "^try_expression$" nil) parent 0)
        ((n-p-gp "^finally_clause$" "^try_expression$" nil) parent 0)
 
@@ -510,9 +510,9 @@ or node matching `treesit-defun-type-regexp' is found."
               (- ,offset)
             ,offset)))
        ((parent-is "^case_clause$") parent ,offset)
-       
+
        ((node-is "^end$") scala-ts--indent-end 0)
-       
+
        ;; Handle function annotations
        ((n-p-gp "^def$" "^function_definition$" nil) parent 0)
 
@@ -539,7 +539,7 @@ or node matching `treesit-defun-type-regexp' is found."
        ((parent-is "^parameters$") parent-bol ,offset)
        ((parent-is "^arguments$") parent-bol ,offset)
        ((parent-is "^tuple_expression$") parent ,offset)
-       
+
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
        ((node-is "^enum_body$") prev-sibling 0)
@@ -555,7 +555,7 @@ or node matching `treesit-defun-type-regexp' is found."
                         "finally"))
               (- ,offset)
             0)))
-       
+
        ((n-p-gp "^call_expression$" "^indented_block$" nil)
         (lambda (node parent _bol)
           parent
@@ -573,7 +573,7 @@ or node matching `treesit-defun-type-regexp' is found."
                                       "block")))
               (- ,offset)
             0)))
-       
+
        ((n-p-gp "^indented_block$" "^ERROR$" nil) no-indent 0)
        ((parent-is "^indented_block$") parent 0)
        ((parent-is "^block$") parent-bol ,offset)
