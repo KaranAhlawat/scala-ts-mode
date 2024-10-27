@@ -87,8 +87,8 @@
 (defvar scala-ts--keywords
   '("case" "class" "enum" "extends" "derives" "finally"
     "object" "override" "package" "trait" "type" "val"
-    "var" "with" "given" "using" "end" "implicit"
-    "extension" "with" "def" "import" "export" "new")
+    "var" "with" "given" "using" "end" "implicit" "new"
+    "extension" "with" "def" "import" "export" "macro")
   "Keywords for `scala-ts-mode'.")
 
 (defvar scala-ts--keywords-type-qualifiers
@@ -132,11 +132,14 @@
      (transparent_modifier) @font-lock-keyword-face
      (open_modifier) @font-lock-keyword-face
      (inline_modifier) @font-lock-keyword-face
+     (infix_modifier) @font-lock-keyword-face
      [,@scala-ts--keywords-control] @font-lock-keyword-face
      (null_literal) @font-lock-builtin-face
      (wildcard) @font-lock-builtin-face
      (annotation) @font-lock-preprocessor-face
      ;; `case' is handled specially here, to limit it into a context
+     (indented_cases
+      (case_clause ("case") @font-lock-keyword-face))
      (case_block
       (case_clause ("case") @font-lock-keyword-face)))
 
@@ -274,7 +277,6 @@
      (integer_literal) @font-lock-number-face
      (floating_point_literal) @font-lock-number-face
      [
-      (symbol_literal)
       (string)
       (character_literal)
       ] @font-lock-string-face)
@@ -396,7 +398,7 @@
                offset
              0)))
 
-        ((rx (| scala-ts--indent-keywords scala-ts--indent) eol)
+        ((rx (| scala-ts--indent-keywords scala-ts--indent ":") eol)
          offset)
 
         (_ 0)))))
