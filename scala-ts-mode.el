@@ -67,7 +67,7 @@
     ;; Just reinforcing some defaults
     (modify-syntax-entry ?\\ "\\" table) ; Escape seq start
     (modify-syntax-entry ?\" "\"" table) ; String start
-    (modify-syntax-entry ?'  "/" table)  ; Char start
+    (modify-syntax-entry ?'  "'" table)  ; Quote expression start
     (modify-syntax-entry ?/ ". 124b" table) ; Line/block comment // or /* */
     (modify-syntax-entry ?* ". 23n" table) ; Block comment /* */
     (modify-syntax-entry ?\n "> b" table) ; Comment ends with newline

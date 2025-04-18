@@ -1,3 +1,6 @@
 *.scala
 .eask/
 *.elc
+.metals/
+.scala-build/
+.bsp/
