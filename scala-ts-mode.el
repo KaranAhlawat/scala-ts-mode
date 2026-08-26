@@ -52,7 +52,14 @@
 (declare-function treesit-node-child "treesit.c")
 
 (defcustom scala-ts-indent-offset 2
-  "Number of spaces for each indentation in `scala-ts-mode'."
+  "Number of spaces for primary code indentation in `scala-ts-mode'."
+  :version "29.1"
+  :type 'integer
+  :safe 'integerp
+  :group 'scala-ts)
+
+(defcustom scala-ts-indent-call-site 2
+  "Number of spaces for indentation of method call arguments in `scala-ts-mode'."
   :version "29.1"
   :type 'integer
   :safe 'integerp
@@ -481,7 +488,8 @@ or node matching `treesit-defun-type-regexp' is found."
       (goto-char (treesit-node-start node)))))
 ;; END
 
-(defvar scala-ts--indent-rules
+(defun scala-ts--indent-rules ()
+  "Tree-sitter indent rules for `scala-ts-mode'."
   (let ((offset scala-ts-indent-offset))
     `((scala
        ((node-is "^comment$") no-indent 0)
@@ -515,7 +523,7 @@ or node matching `treesit-defun-type-regexp' is found."
               (- ,offset)
             ,offset)))
        ((parent-is "^case_clause$") parent-bol ,offset)
-       
+
        ((node-is "^end$") scala-ts--indent-end 0)
 
        ;; Handle function annotations
@@ -544,9 +552,9 @@ or node matching `treesit-defun-type-regexp' is found."
        ((parent-is "^field_expression$") parent-bol ,offset)
        ((parent-is "^class_parameters$") parent-bol ,offset)
        ((parent-is "^parameters$") parent-bol ,offset)
-       ((parent-is "^arguments$") parent-bol ,offset)
+       ((parent-is "^arguments$") parent-bol ,scala-ts-indent-call-site)
        ((parent-is "^tuple_expression$") parent-bol ,offset)
-       
+
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
        ((node-is "^enum_body$") prev-sibling 0)
@@ -585,8 +593,7 @@ or node matching `treesit-defun-type-regexp' is found."
        ((parent-is "^indented_block$") parent 0)
        ((parent-is "^block$") parent-bol ,offset)
        ((node-is "^indented_block$") parent-bol ,offset)
-       ((node-is "^block$") parent ,offset))))
-  "Tree-sitter indent rules for `scala-ts-mode'.")
+       ((node-is "^block$") parent ,offset)))))
 
 (defun scala-ts--defun-name (node)
   "Return the defun name of NODE.
@@ -611,6 +618,12 @@ Return nil if there is no name or if NODE is not a defun node."
       (treesit-node-child node 0)
       t))))
 
+(defun scala-ts--setup-indentation ()
+  "Set `treesit-simple-indent-rules' according to `scala-ts--indent-rules'."
+  (setq-local
+   treesit-simple-indent-rules (funcall 'scala-ts--indent-rules))
+  (treesit-major-mode-setup))
+
 ;;;###autoload
 (define-derived-mode scala-ts-mode prog-mode " Scala (TS)"
   "Major mode for Scala files using tree-sitter."
@@ -632,9 +645,7 @@ Return nil if there is no name or if NODE is not a defun node."
                                                  (import extra)
                                                  (variable function operator literal interpolation)))
 
-
-    (setq-local
-     treesit-simple-indent-rules scala-ts--indent-rules)
+    (add-hook 'hack-local-variables-hook #'scala-ts--setup-indentation nil t)
     (setq-local electric-indent-chars (append electric-indent-chars '(?.)))
 
     ;; Navigation.
