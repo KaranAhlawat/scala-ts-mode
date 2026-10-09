@@ -57,6 +57,12 @@
   :safe 'integerp
   :group 'scala-ts)
 
+(defface scala-ts-mutable-variable
+  '((t :inherit font-lock-warning-face))
+  "Face for the names of mutable variables, the ones declared with `var'.
+It sets them apart from immutable values, as `scala-mode' does."
+  :group 'scala-ts)
+
 (defvar scala-ts--syntax-table
   (let ((table (make-syntax-table)))
     ;; "." denotes punctuation
@@ -216,11 +222,11 @@
      (val_definition
       pattern: (identifier) @font-lock-variable-name-face)
      (var_definition
-      pattern: (identifier) @font-lock-variable-name-face)
+      pattern: (identifier) @scala-ts-mutable-variable)
      (val_declaration
       name: (identifier) @font-lock-variable-name-face)
      (var_declaration
-      name: (identifier) @font-lock-variable-name-face)
+      name: (identifier) @scala-ts-mutable-variable)
      ;; expressions
      (field_expression field: (identifier) @font-lock-property-use-face)
      ;; this and super

@@ -39,6 +39,8 @@ You may wish to customize ~treesit-font-lock-level~, using ~M-x customize-variab
 
 The default font lock level is 3. At that level, not as many constructs are highlighted as you might like. Increasing it to 4 results in richer highlighting.
 
+Mutable variables (~var~) are highlighted with the face ~scala-ts-mutable-variable~, which inherits ~font-lock-warning-face~ like the variable face of ~scala-mode~ does. Use ~M-x customize-face~ to change it.
+
 ** Eglot Setup
 Some versions of Emacs aren't set up with an Eglot that knows which LSP server to use for ~scala-ts-mode~.
 This code can be in ~init.el~ before loading Eglot to tell it to use the same function for ~scala-ts-mode~ that it does for ~scala-mode~.
