@@ -58,9 +58,10 @@
   :group 'scala-ts)
 
 (defface scala-ts-mutable-variable
-  '((t :inherit font-lock-warning-face))
+  '((t :inherit font-lock-variable-name-face))
   "Face for the names of mutable variables, the ones declared with `var'.
-It sets them apart from immutable values, as `scala-mode' does."
+By default they look like immutable values.  To set them apart, as
+`scala-mode' does, make this face inherit `font-lock-warning-face'."
   :group 'scala-ts)
 
 (defvar scala-ts--syntax-table
