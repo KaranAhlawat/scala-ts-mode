@@ -471,8 +471,7 @@ or node matching `treesit-defun-type-regexp' is found."
 ;; END
 
 (defvar scala-ts--indent-rules
-  (let ((offset scala-ts-indent-offset))
-    `((scala
+  `((scala
        ((node-is "^comment$") no-indent 0)
 
        (scala-ts--end-marker-at-bol-p scala-ts--indent-end-marker 0)
@@ -486,26 +485,29 @@ or node matching `treesit-defun-type-regexp' is found."
        ;; Handle else-if
        ((n-p-gp "^postfix_expression$" "^indented_block$" "^if_expression$") grand-parent 0)
 
-       ((n-p-gp "^enumerators$" "^for_expression$" nil) parent-bol ,offset)
+       ((n-p-gp "^enumerators$" "^for_expression$" nil) parent-bol scala-ts-indent-offset)
        ((n-p-gp "^enumerator$" "^enumerators$" nil) parent 0)
-       ((n-p-gp "^ERROR$" "^enumerators$" nil) prev-line ,(- offset))
+       ((n-p-gp "^ERROR$" "^enumerators$" nil)
+        prev-line
+        (lambda (&rest _)
+          (- scala-ts-indent-offset)))
        ((n-p-gp "^yield$" "^for_expression$" nil) parent-bol 0)
 
        ((n-p-gp "^catch_clause$" "^try_expression$" nil) parent 0)
        ((n-p-gp "^finally_clause$" "^try_expression$" nil) parent 0)
 
-       ((n-p-gp "^indented_cases$" "^match_expression" nil) parent-bol ,offset)
+       ((n-p-gp "^indented_cases$" "^match_expression" nil) parent-bol scala-ts-indent-offset)
        ((n-p-gp "^case_clause$" "^indented_cases$" nil) parent 0)
-       ((n-p-gp "^case_clause$" "^case_block$" nil) parent-bol ,offset)
+       ((n-p-gp "^case_clause$" "^case_block$" nil) parent-bol scala-ts-indent-offset)
        ((n-p-gp "[.]" "^field_expression$" "^case_clause$") prev-sibling 0)
        ((n-p-gp "^identifier$" "^case_clause$" nil)
         parent
         (lambda (node _parent _bol)
           (if (string= (treesit-node-text node)
                        "finally")
-              (- ,offset)
-            ,offset)))
-       ((parent-is "^case_clause$") parent-bol ,offset)
+              (- scala-ts-indent-offset)
+            scala-ts-indent-offset)))
+       ((parent-is "^case_clause$") parent-bol scala-ts-indent-offset)
        
        ;; Handle function annotations
        ((n-p-gp "^def$" "^function_definition$" nil) parent 0)
@@ -524,17 +526,17 @@ or node matching `treesit-defun-type-regexp' is found."
 
        ;; Normal definitions
        ((parent-is "^compilation_unit$") column-0 0)
-       ((parent-is "definition$") parent-bol ,offset)
-       ((parent-is "^lambda_expression$") parent-bol ,offset)
-       ((parent-is "^enum_body$") parent-bol ,offset)
-       ((n-p-gp nil "^template_body$" "definition$") grand-parent ,offset)
-       ((parent-is "^template_body$") parent-bol ,offset)
-       ((parent-is "^with_template_body$") parent-bol ,offset)
-       ((parent-is "^field_expression$") parent-bol ,offset)
-       ((parent-is "^class_parameters$") parent-bol ,offset)
-       ((parent-is "^parameters$") parent-bol ,offset)
-       ((parent-is "^arguments$") parent-bol ,offset)
-       ((parent-is "^tuple_expression$") parent-bol ,offset)
+       ((parent-is "definition$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^lambda_expression$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^enum_body$") parent-bol scala-ts-indent-offset)
+       ((n-p-gp nil "^template_body$" "definition$") grand-parent scala-ts-indent-offset)
+       ((parent-is "^template_body$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^with_template_body$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^field_expression$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^class_parameters$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^parameters$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^arguments$") parent-bol scala-ts-indent-offset)
+       ((parent-is "^tuple_expression$") parent-bol scala-ts-indent-offset)
        
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
@@ -549,7 +551,7 @@ or node matching `treesit-defun-type-regexp' is found."
                         "catch"
                         "else"
                         "finally"))
-              (- ,offset)
+              (- scala-ts-indent-offset)
             0)))
 
        ((n-p-gp "^call_expression$" "^indented_block$" nil)
@@ -567,14 +569,14 @@ or node matching `treesit-defun-type-regexp' is found."
                                        (treesit-node-next-sibling
                                         func-node))
                                       "block")))
-              (- ,offset)
+              (- scala-ts-indent-offset)
             0)))
 
        ((n-p-gp "^indented_block$" "^ERROR$" nil) no-indent 0)
        ((parent-is "^indented_block$") parent 0)
-       ((parent-is "^block$") parent-bol ,offset)
-       ((node-is "^indented_block$") parent-bol ,offset)
-       ((node-is "^block$") parent ,offset))))
+       ((parent-is "^block$") parent-bol scala-ts-indent-offset)
+       ((node-is "^indented_block$") parent-bol scala-ts-indent-offset)
+       ((node-is "^block$") parent scala-ts-indent-offset)))
   "Tree-sitter indent rules for `scala-ts-mode'.")
 
 (defun scala-ts--defun-name (node)
