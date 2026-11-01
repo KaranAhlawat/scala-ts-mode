@@ -459,15 +459,19 @@ By default they look like immutable values.  To set them apart, as
   "Correction when jumping at the beginning of a defun.
 If point is in \"indented_block\" move it at the beginning of the
 block.  End search as soon as either \"indented_block\" is found
-or node matching `treesit-defun-type-regexp' is found."
-  (let* ((pred (lambda (node)
-                 (let ((type (treesit-node-type node)))
-                   (or
-                    (string= "indented_block" type)
-                    (string-match-p treesit-defun-type-regexp type)))))
-         (node (treesit-parent-until (treesit-node-at (point)) pred t)))
-    (when (string= "indented_block" (treesit-node-type node))
-      (goto-char (treesit-node-start node)))))
+or node matching `treesit-defun-type-regexp' is found.
+
+This runs as an advice of `treesit-beginning-of-defun', which is
+global, so it does nothing outside `scala-ts-mode' buffers."
+  (when (derived-mode-p 'scala-ts-mode)
+    (let* ((pred (lambda (node)
+                   (let ((type (treesit-node-type node)))
+                     (or
+                      (string= "indented_block" type)
+                      (string-match-p treesit-defun-type-regexp type)))))
+           (node (treesit-parent-until (treesit-node-at (point)) pred t)))
+      (when (string= "indented_block" (treesit-node-type node))
+        (goto-char (treesit-node-start node))))))
 ;; END
 
 (defvar scala-ts--indent-rules
