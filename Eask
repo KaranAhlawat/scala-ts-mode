@@ -6,7 +6,7 @@
 (keywords "emacs" "tree-sitter" "scala" "scala-ts-mode" "languages")
 
 (package-file "scala-ts-mode.el")
-(files "scala-ts-mode.el" "scala-ts-mode-autoloads.el" "scala-ts-mode-pkg.el")
+(files "scala-ts-mode.el")
 
 (source "gnu")
 (source "melpa")
