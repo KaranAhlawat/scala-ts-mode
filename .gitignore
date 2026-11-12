@@ -4,3 +4,5 @@
 .metals/
 .scala-build/
 .bsp/
+*-autoloads.el
+*-pkg.el
